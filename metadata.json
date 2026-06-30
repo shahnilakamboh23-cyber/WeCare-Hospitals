@@ -1,0 +1,6 @@
+{
+  "name": "We Care Hospitals",
+  "description": "A modern, clean hospital website for We Care Hospitals, featuring interactive department information, doctor profiles, and an integrated appointment booking system.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,53 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "Registered user profile details",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "displayName": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["uid", "email"]
+    },
+    "Booking": {
+      "title": "Booking",
+      "description": "Clinic appointment booking details",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "doctorId": { "type": "string" },
+        "doctorName": { "type": "string" },
+        "doctorTitle": { "type": "string" },
+        "doctorImage": { "type": "string" },
+        "departmentName": { "type": "string" },
+        "patientName": { "type": "string" },
+        "patientEmail": { "type": "string", "format": "email" },
+        "patientPhone": { "type": "string" },
+        "date": { "type": "string" },
+        "timeSlot": { "type": "string" },
+        "symptoms": { "type": "string" },
+        "notes": { "type": "string" },
+        "status": {
+          "type": "string",
+          "enum": ["scheduled", "cancelled", "completed"]
+        },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "userId", "doctorId", "doctorName", "patientName", "patientEmail", "patientPhone", "date", "timeSlot", "status", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/User" },
+      "description": "User profile document indexed by the user's auth UID"
+    },
+    "/bookings/{bookingId}": {
+      "schema": { "$ref": "#/entities/Booking" },
+      "description": "Appointment booking document indexed by unique booking ID"
+    }
+  }
+}

@@ -1,0 +1,94 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 1. Global Safety Net: Default Deny All
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function isAdmin() {
+      return isSignedIn() && request.auth.token.email == 'shahnilakamboh23@gmail.com';
+    }
+
+    // Validation blueprints
+    function isValidUser(data) {
+      return data.keys().hasAll(['uid', 'email', 'displayName', 'createdAt'])
+        && data.keys().size() == 4
+        // Identity integrity
+        && (data.uid == request.auth.uid || isAdmin())
+        && data.email is string && data.email.size() <= 100
+        && data.displayName is string && data.displayName.size() <= 100
+        && data.createdAt is string && data.createdAt.size() <= 50;
+    }
+
+    function isValidBooking(data) {
+      return data.keys().hasAll([
+        'id', 'userId', 'doctorId', 'doctorName', 'doctorTitle', 'doctorImage', 
+        'departmentName', 'patientName', 'patientEmail', 'patientPhone', 'date', 
+        'timeSlot', 'symptoms', 'status', 'createdAt'
+      ])
+        && (data.keys().size() == 15 || (data.keys().size() == 16 && data.keys().hasAll(['notes'])))
+        // Identity integrity
+        && (data.userId == request.auth.uid || isAdmin())
+        && data.id is string && data.id.size() <= 100
+        && data.doctorId is string && data.doctorId.size() <= 100
+        && data.doctorName is string && data.doctorName.size() <= 100
+        && data.doctorTitle is string && data.doctorTitle.size() <= 100
+        && data.doctorImage is string && data.doctorImage.size() <= 500
+        && data.departmentName is string && data.departmentName.size() <= 100
+        && data.patientName is string && data.patientName.size() <= 100
+        && data.patientEmail is string && data.patientEmail.size() <= 100
+        && data.patientPhone is string && data.patientPhone.size() <= 30
+        && data.date is string && data.date.size() <= 20
+        && data.timeSlot is string && data.timeSlot.size() <= 20
+        && data.symptoms is string && data.symptoms.size() <= 1000
+        && (!data.keys().hasAll(['notes']) || (data.notes is string && data.notes.size() <= 1000))
+        && data.status in ['scheduled', 'cancelled', 'completed']
+        && data.createdAt is string && data.createdAt.size() <= 50;
+    }
+
+    // Collection: Users
+    match /users/{userId} {
+      allow get, list: if isSignedIn() && (request.auth.uid == userId || isAdmin());
+      allow create: if isSignedIn() && (request.auth.uid == userId || isAdmin()) && isValidUser(request.resource.data);
+      allow update: if isSignedIn() && (request.auth.uid == userId || isAdmin()) && isValidUser(request.resource.data) 
+        && (isAdmin() || (request.resource.data.uid == resource.data.uid && request.resource.data.createdAt == resource.data.createdAt));
+      allow delete: if false; // Profiles cannot be deleted from frontend
+    }
+
+    // Collection: Bookings
+    match /bookings/{bookingId} {
+      allow get, list: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow create: if isSignedIn() && (request.resource.data.userId == request.auth.uid || isAdmin()) && isValidBooking(request.resource.data);
+      allow update: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin()) && isValidBooking(request.resource.data)
+        && (isAdmin() || (
+          request.resource.data.userId == resource.data.userId // Immutable user ownership
+          && request.resource.data.createdAt == resource.data.createdAt // Immutable creation time
+          // Named update action: only allowing status transitions to cancel or complete
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status'])
+        ));
+      allow delete: if isAdmin(); // Admin is allowed to delete or manage physical records if they must, or just update
+    }
+  }
+}

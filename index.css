@@ -1,0 +1,61 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Outfit", sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+  
+  --color-medical-50: #eff6ff;
+  --color-medical-100: #dbeafe;
+  --color-medical-200: #bfdbfe;
+  --color-medical-500: #2563eb;
+  --color-medical-600: #1d4ed8;
+  --color-medical-700: #1e40af;
+  --color-medical-800: #1e3a8a;
+  --color-medical-900: #172554;
+  
+  --color-accent-blue-50: #eff6ff;
+  --color-accent-blue-500: #3b82f6;
+  --color-accent-blue-600: #2563eb;
+  --color-accent-blue-700: #1d4ed8;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: #f0f9ff;
+  color: #1e293b;
+  min-height: 100vh;
+}
+
+/* Frosted Glass Utilities */
+.glass-card {
+  background-color: rgba(255, 255, 255, 0.45);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 0 8px 32px 0 rgba(37, 99, 235, 0.04);
+}
+
+.glass-card-strong {
+  background-color: rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.65);
+  box-shadow: 0 12px 40px 0 rgba(37, 99, 235, 0.08);
+}
+
+.glass-navbar {
+  background-color: rgba(255, 255, 255, 0.35);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+.font-display {
+  font-family: var(--font-display);
+}
+
+.font-mono {
+  font-family: var(--font-mono);
+}
